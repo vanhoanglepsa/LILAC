@@ -42,33 +42,17 @@ def infer_llm(instruction, exemplars, query, log_message, model='gpt-3.5-turbo-0
     # print(my_json)
     retry_times = 0
     print("model: ", model)
-    if "turbo" in model:
-        while retry_times < 3:
-            try:
-                answers = openai_client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    temperature=temperature,
-                )
-                return response.choices[0].message.content.strip('\n')
-            except Exception as e:
-                print("Exception :", e)
-                if "list index out of range" in str(e):
-                    break
-                # print(answers)
-                retry_times += 1
-    else:
-        while retry_times < 3:
-            try:
-                response = openai_client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    temperature=temperature,
-                )
-                return response.choices[0].message.content.strip('\n')
-            except Exception as e:
-                print("Exception :", e)
-                retry_times += 1
+    while retry_times < 3:
+        try:
+            response = openai_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+            )
+            return response.choices[0].message.content.strip('\n')
+        except Exception as e:
+            print("Exception :", e)
+            retry_times += 1
     print(f"Failed to get response from OpenAI after {retry_times} retries.")
     if exemplars is not None and len(exemplars) > 0:
         if exemplars[0]['query'] != 'Log message: `try to connected to host: 172.16.254.1, finished.`' \
